@@ -113,3 +113,7 @@ Only permissively licensed models are used by default: BiRefNet (MIT, via rembg)
 LaMa (Apache-2.0, ONNX), Depth Anything V2 **Small** (Apache-2.0, ONNX), Apple Vision
 OCR (macOS system framework). Non-commercial checkpoints (BRIA RMBG-2.0, Depth Anything
 Base/Large) are intentionally not used.
+
+## License
+
+MIT — see `LICENSE`. Models downloaded at setup keep their own licences (listed above).
