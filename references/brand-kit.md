@@ -8,13 +8,13 @@ Pass it to `scene --brand kit.json`. Where to keep it:
 
 ```json
 {
-  "name": "Example Sport Club",
-  "palette": { "accent": "#62f6ff", "accent2": "#bffcff", "light": "#ffffff", "dark": "#020304" },
-  "defaults": { "profile": "feed-portrait", "mood": "energetic", "structure": "intro-loop",
+  "name": "Example Coffee Co",
+  "palette": { "accent": "#e8833a", "accent2": "#f6c9a3", "light": "#ffffff", "dark": "#1b120c" },
+  "defaults": { "profile": "feed-portrait", "mood": "premium", "structure": "intro-loop",
                 "duration": 4, "intro": 2, "formats": "mp4", "intensity": 0.8 },
-  "protect": ["logo", "photo_*"],
+  "protect": ["logo", "product*"],
   "avoid": ["confetti", "hearts", "flare"],
-  "notes": "Turquoise is the brand colour. Logo never moves. Photos of real people: no distortion."
+  "notes": "Orange is the brand colour. Logo never moves. The cup is the hero: no distortion."
 }
 ```
 

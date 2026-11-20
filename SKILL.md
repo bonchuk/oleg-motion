@@ -62,7 +62,7 @@ with your recommended option first, built from what you saw in the image:
 3. **Structure?** → "elements appear, then loop" (`intro-loop`, good for social posts),
    "seamless loop only" (`loop`, good for site banners), "one pass with an ending" (`oneshot`).
 4. **What is the hero?** (multiSelect) → the 3–4 most prominent elements you found, e.g.
-   "headline МАРАФОН", "CTA button", "photos", "product". The hero gets the main motion;
+   "headline SUMMER SALE", "CTA button", "photos", "product". The hero gets the main motion;
    everything else stays calm.
 
 Defaults if unanswered: profile from aspect ratio, 6 s (intro 2 s + loop 4 s for
@@ -75,11 +75,11 @@ rhythm, not its content.
 Before the first render, show the plan in plain language (user's language), one line per
 element, with timing — e.g.:
 
-> **Інтро (2 с):** логотип з'являється → заголовок піднімається рядками → «МАРАФОН»
-> вискакує → лінія промальовується → кнопка, стрілки, фото виїжджають знизу.
-> **Петля (4 с):** «МАРАФОН» світиться й ледь дихає, по ньому пробігає блиск · кнопка
-> пульсує · стрілки підстрибують · фото ледь плавають · бірюзовий пил на фоні.
-> **Не рухається:** логотип (лише іскра), ціни/дати.
+> **Інтро (2 с):** логотип з'являється → заголовок піднімається рядками → «-30%»
+> вискакує → кнопка й товар з'являються знизу.
+> **Петля (4 с):** «-30%» ледь світиться, по ньому пробігає блиск · кнопка пульсує ·
+> товар ледь плаває · теплий пил на фоні.
+> **Не рухається:** логотип (лише іскра), ціна після появи, дати.
 
 Ask "Так робимо, чи щось змінити?" in the same message and proceed only after a yes (or
 when the user skipped questions — then render straight away and show the plan with the

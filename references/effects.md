@@ -96,7 +96,7 @@ Depth: particles are split over `depthLayers`; near ones are larger, faster and 
 (a real leaf, a snowflake) — sprites inherit all motion.
 
 ## Recipes
-- **Reference banner ("Міжсезонний розпродаж")**: mood `autumn` on auto-layers — blurred
+- **Seasonal sale banner**: mood `autumn` on auto-layers — blurred
   plate drifts, headline gets `tilt3d` + `breathe` + a `glint`, golden `dust` in front,
   a few large `leaves` passing the corners.
 - **Product hero**: `subject: float + shine`, `overlays: bokeh(back) + vignette`, camera push 0.03.
