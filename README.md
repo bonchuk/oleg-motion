@@ -26,62 +26,62 @@ oleg-motion runs inside **Claude Code** — the terminal CLI, the IDE extensions
 mode of the Claude desktop app. It does not work in regular claude.ai chats: rendering needs
 a local browser, ffmpeg and (optionally) local ML models.
 
-### Requirements
+### What you need
 
-| | needed for | how to get it (macOS) |
-|---|---|---|
-| Node.js ≥ 20 | everything | `brew install node` |
-| ffmpeg | encoding MP4 / WebM / GIF | `brew install ffmpeg` |
-| Google Chrome | rendering (if missing, Playwright downloads its own Chromium) | chrome.com |
-| Python 3.11–3.13 | PSD import, auto-layers, region cut-outs | `brew install python` |
-| ~1.2 GB disk | ML extras: Python packages + models in `~/.cache/oleg-motion` (and the cut-out model in `~/.rembg`) | installed by `setup.sh --ml` |
+- A Mac (Apple Silicon recommended) with the **Claude desktop app** and a plan that includes
+  Claude Code. Nothing else: no GitHub account, no Terminal, no Homebrew, no admin password.
+- About **1.5 GB** of free disk space.
 
-- **macOS** (Apple Silicon recommended) is fully supported.
-- **Linux** works the same, except automatic text detection (Apple Vision OCR is macOS-only):
-  there, mark text with regions or use PSD/PNG layers. Install deps with your package manager
-  (`apt install nodejs ffmpeg python3-venv`).
+Setup downloads whatever is missing — Node.js (nodejs.org), ffmpeg (static build from
+ffmpeg.martin-riedl.de), Python (via Astral's `uv`) and Chromium (only if Google Chrome is
+absent) — as private copies into `~/.cache/oleg-motion`. Tools already installed on the
+machine are used instead when they are recent enough. Nothing outside that folder and
+`~/.rembg` (the cut-out model) is changed.
+
+- **Linux** works the same, except automatic text detection (Apple Vision OCR is macOS-only)
+  and ffmpeg, which you install with your package manager (`apt install ffmpeg`).
 - **Windows** is untested.
-- Homebrew itself (`brew.sh`) asks for the computer's password once — run that yourself;
-  Claude cannot type passwords.
 
-### Option A — ask Claude to install it
+### Option A — ask Claude to install it (recommended)
 
-Open Claude Code and say (any language works):
+Open the Claude desktop app, switch to **Code**, and say (any language works):
 
-> Install the oleg-motion skill from https://github.com/bonchuk/oleg-motion: clone it to
-> `~/oleg-motion`, link it into `~/.claude/skills/oleg-motion`, run `scripts/setup.sh --ml`
-> and check everything with the `doctor` command.
+> Install the oleg-motion skill: download https://github.com/bonchuk/oleg-motion/archive/refs/heads/main.zip,
+> unpack it into `~/oleg-motion`, link that folder into `~/.claude/skills/oleg-motion`,
+> then run `bash ~/oleg-motion/scripts/setup.sh --ml`.
 
-Claude will ask permission for each command. When it is done, start a new Claude Code
-session so the skill is picked up, then just drop an image and say "animate this".
+Claude asks permission for each step — allow them. The first setup takes 10–20 minutes,
+mostly downloads. Then start a new session, drop an image and say "animate this".
 
-### Option B — manual
+### Option B — manual (Terminal)
 
 ```bash
-git clone https://github.com/bonchuk/oleg-motion.git ~/oleg-motion
-~/oleg-motion/scripts/setup.sh --ml       # or: no flag = core only, --psd = core + PSD import
+curl -L -o /tmp/om.zip https://github.com/bonchuk/oleg-motion/archive/refs/heads/main.zip
+mkdir -p ~/oleg-motion && tar -xf /tmp/om.zip -C ~/oleg-motion --strip-components 1
 mkdir -p ~/.claude/skills && ln -s ~/oleg-motion ~/.claude/skills/oleg-motion
-node ~/oleg-motion/engine/cli.mjs doctor  # shows what is installed and what is missing
+bash ~/oleg-motion/scripts/setup.sh --ml   # or: no flag = core only, --psd = core + PSD import
 ```
+Developers can `git clone https://github.com/bonchuk/oleg-motion.git ~/oleg-motion` instead
+of the first two lines.
 
 `setup.sh` levels:
 
 | command | gives you | download |
 |---|---|---|
-| `setup.sh` | the engine: animate any image as a whole (camera, particles, light, overlays), PNG layer folders | ~20 MB (+ ~150 MB Chromium only if Chrome is absent) |
-| `setup.sh --psd` | + layered PSD import | + ~110 MB |
+| `setup.sh` | the engine: animate any image as a whole (camera, particles, light, overlays), PNG layer folders | ~20 MB (+ Node ~50 MB, ffmpeg ~55 MB, Chromium ~150 MB — each only if missing) |
+| `setup.sh --psd` | + layered PSD import | + ~110 MB (+ Python ~40 MB if missing) |
 | `setup.sh --ml` | + automatic layers from a flat image (subject cut-out, text, inpainting, depth) and region cut-outs | + ~1 GB (packages + models, first run only) |
 
-Set `OLEG_MOTION_HOME` to keep the Python environment and models somewhere other than
+`~/oleg-motion/om doctor` shows what is installed and what is missing. Set
+`OLEG_MOTION_HOME` to keep tools, the Python environment and models somewhere other than
 `~/.cache/oleg-motion`.
 
 ### Update
 
-```bash
-git -C ~/oleg-motion pull && ~/oleg-motion/scripts/setup.sh --ml
-```
-(or tell Claude "update the oleg-motion skill"). Re-running `setup.sh` is safe: installed
-packages and downloaded models are reused.
+Tell Claude "update the oleg-motion skill", or run `~/oleg-motion/om update`. It pulls with
+git when the folder is a git checkout and otherwise downloads the latest archive (your own
+files, such as brand kits, are kept), then re-runs setup at the installed level. Downloads
+already done are reused.
 
 ### Uninstall
 
@@ -99,9 +99,9 @@ JSON kit — in `brands/` of this repo or next to their own files. See
 ## CLI in 3 commands
 
 ```bash
-~/.cache/oleg-motion/venv/bin/python scripts/ml/auto_layers.py banner.jpg --out work/layers
-node engine/cli.mjs scene --layers work/layers/layers.json --mood autumn --profile story --out work/scene.json
-node engine/cli.mjs render work/scene.json --out work/out --formats mp4,webm,gif
+./om py scripts/ml/auto_layers.py banner.jpg --out work/layers
+./om scene --layers work/layers/layers.json --mood autumn --profile story --out work/scene.json
+./om render work/scene.json --out work/out --formats mp4,webm,gif
 ```
 
 See `SKILL.md` for the agent workflow, `references/` for the effect catalogue and scene

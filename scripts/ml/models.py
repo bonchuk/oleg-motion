@@ -54,6 +54,13 @@ def ensure(key: str, quiet: bool = False) -> Path:
             last[0] = done
             print(f"  {done}%", file=sys.stderr)
 
+    try:  # standalone Python builds may not see the macOS keychain → use certifi's CA bundle
+        import ssl
+        import certifi
+        ctx = ssl.create_default_context(cafile=certifi.where())
+        urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx)))
+    except ImportError:
+        pass
     urllib.request.urlretrieve(url, tmp, hook)
     if not quiet:
         print("", file=sys.stderr)

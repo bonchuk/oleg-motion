@@ -8,6 +8,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+// Private tools installed by scripts/setup.sh (ffmpeg, ffprobe) come first on PATH, so the
+// CLI works even when started as `node engine/cli.mjs` without the `om` launcher.
+process.env.PATH = [path.join(process.env.OLEG_MOTION_HOME || path.join(process.env.HOME || '', '.cache', 'oleg-motion'), 'tools', 'bin'), process.env.PATH].join(path.delimiter);
 import { loadScene, imageSize, loopWindow } from './lib/scene.mjs';
 import { captureFrames } from './lib/render.mjs';
 import { encodeMp4, encodeWebm, encodeGif, poster, contactSheet } from './lib/encode.mjs';
@@ -132,8 +135,12 @@ function cmdDoctor() {
   const venvPy = path.join(process.env.OLEG_MOTION_HOME || path.join(process.env.HOME, '.cache', 'oleg-motion'), 'venv', 'bin', 'python');
   log('optional (python venv for PSD and auto-layers):');
   if (!ok('venv', () => { if (!fs.existsSync(venvPy)) throw new Error('not created — run scripts/setup.sh --ml'); return venvPy; })) return;
-  for (const [mod, what] of [['PIL', 'Pillow'], ['psd_tools', 'PSD import'], ['cv2', 'OpenCV'], ['rembg', 'subject cut-out'], ['ocrmac', 'text detection (macOS)'], ['simple_lama_inpainting', 'LaMa inpainting'], ['transformers', 'depth model']]) {
+  for (const [mod, what] of [['PIL', 'Pillow'], ['psd_tools', 'PSD import'], ['cv2', 'OpenCV'], ['onnxruntime', 'ONNX runtime'], ['rembg', 'subject cut-out'], ['ocrmac', 'text detection (macOS)']]) {
     ok(`${what} (${mod})`, () => execFileSync(venvPy, ['-c', `import ${mod}`], { stdio: 'pipe' }) && '');
+  }
+  const models = path.join(path.dirname(venvPy), '..', '..', 'models');
+  for (const [file, what] of [['lama_fp32.onnx', 'inpainting model (LaMa)'], ['depth_anything_v2_small.onnx', 'depth model']]) {
+    ok(what, () => { if (!fs.existsSync(path.join(models, file))) throw new Error('not downloaded — run om setup --ml'); });
   }
 }
 

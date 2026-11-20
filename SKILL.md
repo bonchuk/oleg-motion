@@ -14,15 +14,21 @@ and scene JSON in English.
 
 ## 0. Make sure it runs (once per machine)
 
+Run everything through the launcher `$OM/om` — it puts the skill's own Node, ffmpeg and
+Python first on PATH, so it works on a clean Mac with no developer tools.
+
 ```bash
-node $OM/engine/cli.mjs doctor          # what is installed
-$OM/scripts/setup.sh                    # core: Playwright engine (needs node ≥20 + ffmpeg)
-$OM/scripts/setup.sh --psd              # + PSD import
-$OM/scripts/setup.sh --ml               # + auto-layers for flat images (~1 GB incl. models)
+$OM/om doctor              # what is installed
+bash $OM/scripts/setup.sh  # core: Node.js, ffmpeg, rendering engine (downloads what is missing)
+$OM/om setup --psd         # + PSD import
+$OM/om setup --ml          # + auto-layers for flat images (~1 GB incl. models)
+$OM/om update              # latest version from GitHub (works without git), then setup again
 ```
-Core alone can already animate any image (camera, particles, light, overlays). Ask before
-running `--ml` — it downloads models. The venv lives in `~/.cache/oleg-motion/venv`
-(override with `OLEG_MOTION_HOME`); call its python as `~/.cache/oleg-motion/venv/bin/python`.
+Setup needs no admin password, Homebrew or git: missing tools are downloaded into
+`~/.cache/oleg-motion/tools` (override the folder with `OLEG_MOTION_HOME`); tools already on
+the machine are used when good enough. Core alone can already animate any image (camera,
+particles, light, overlays). Ask before running `--ml` — it downloads models. If `om` is not
+executable (unpacked from a zip), call `bash $OM/om …`.
 
 ## 1. Brief — look first, then ask with clickable options
 
@@ -58,7 +64,7 @@ with your recommended option first, built from what you saw in the image:
    person isn't surprised.
 2. **Character?** → 3–4 moods that fit the picture, described by feeling, not by name:
    "calm & premium", "energetic", "festive", "barely moving". Mention the matching mood
-   in the description (`premium`, `energetic`, `festive`, `calm` …; full list: `cli.mjs moods`).
+   in the description (`premium`, `energetic`, `festive`, `calm` …; full list: `$OM/om moods`).
 3. **Structure?** → "elements appear, then loop" (`intro-loop`, good for social posts),
    "seamless loop only" (`loop`, good for site banners), "one pass with an ending" (`oneshot`).
 4. **What is the hero?** (multiSelect) → the 3–4 most prominent elements you found, e.g.
@@ -92,10 +98,10 @@ Pick by input — the goal is a `layers.json` with roles (see references/scene-f
 
 | input | command |
 |---|---|
-| flat JPG/PNG, ML installed | `~/.cache/oleg-motion/venv/bin/python $OM/scripts/ml/auto_layers.py in.jpg --out work/layers` |
-| PSD | `~/.cache/oleg-motion/venv/bin/python $OM/scripts/psd_layers.py in.psd --out work/layers` |
-| folder of PNG layers | `node $OM/engine/cli.mjs layers-from-dir path/to/pngs` |
-| designed creative (cards, buttons, arrows, photos with heads over the frame) or auto-layers got it wrong | write `regions.json` (boxes/polygons + mask mode) → `~/.cache/oleg-motion/venv/bin/python $OM/scripts/ml/cut_regions.py regions.json --out work/layers` (format in the script's docstring) |
+| flat JPG/PNG, ML installed | `$OM/om py $OM/scripts/ml/auto_layers.py in.jpg --out work/layers` |
+| PSD | `$OM/om py $OM/scripts/psd_layers.py in.psd --out work/layers` |
+| folder of PNG layers | `$OM/om layers-from-dir path/to/pngs` |
+| designed creative (cards, buttons, arrows, photos with heads over the frame) or auto-layers got it wrong | write `regions.json` (boxes/polygons + mask mode) → `$OM/om py $OM/scripts/ml/cut_regions.py regions.json --out work/layers` (format in the script's docstring) |
 | flat image, no ML | write layers.json by hand: one `background` layer (and ask for text boxes if particles must avoid text) |
 
 For `regions.json`, find coordinates by measuring, not by eye: threshold bright/dark pixels
@@ -112,7 +118,7 @@ cut-out is poor, drop that layer rather than animating a ragged edge.
 ## 4. Build the scene
 
 ```bash
-node $OM/engine/cli.mjs scene --layers work/layers/layers.json --mood energetic \
+$OM/om scene --layers work/layers/layers.json --mood energetic \
      --profile feed-portrait --structure intro-loop [--brand brand.json] \
      [--intensity 1] [--speed 1] [--density 1] --out work/scene.json
 ```
@@ -126,8 +132,8 @@ references/motion-guidelines.md for limits that keep it professional.
 ## 5. Render, look, iterate
 
 ```bash
-node $OM/engine/cli.mjs render work/scene.json --out work/out --quality draft     # fast check
-node $OM/engine/cli.mjs render work/scene.json --out work/out --formats mp4,webm,gif  # final
+$OM/om render work/scene.json --out work/out --quality draft     # fast check
+$OM/om render work/scene.json --out work/out --formats mp4,webm,gif  # final
 ```
 After every render **look at `*-sheet.jpg`** (8 frames) and, when something is in doubt,
 extract single frames (`ffmpeg -ss 2.5 -i out.mp4 -frames:v 1 f.png`) and view them. The
@@ -177,7 +183,7 @@ If this was a brand's job and no kit exists yet, offer in one line to save one
   composited back on top.
 
 ## Troubleshooting
-- `Playwright is not installed` → `$OM/scripts/setup.sh`.
+- `Playwright is not installed`, `Node.js is missing`, `ffmpeg` errors → `bash $OM/scripts/setup.sh`.
 - Blank or black frames → a layer path is wrong (check stderr warnings) or the scene has
   no background layer.
 - Text detection skipped → `ocrmac` is macOS-only; elsewhere pass text layers manually.

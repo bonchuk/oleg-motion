@@ -47,7 +47,7 @@ def main():
     try:
         from psd_tools import PSDImage
     except ImportError:
-        sys.exit("psd-tools is not installed. Run: scripts/setup.sh --psd")
+        sys.exit("psd-tools is not installed. Run: om setup --psd")
 
     psd = PSDImage.open(a.psd)
     out = Path(a.out)

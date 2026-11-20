@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# oleg-motion launcher — the one entry point. Puts the skill's private tools (Node, ffmpeg,
+# Python) first on PATH, so it works on a clean Mac without Homebrew or admin rights.
+#   om <command> ...        render | scene | layers-from-dir | moods | profiles | doctor
+#   om py <script.py> ...   run a script with the skill's Python environment
+#   om setup [--psd|--ml]   install or repair (scripts/setup.sh)
+#   om update               fetch the latest version and re-run setup (scripts/update.sh)
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HOME_DIR="${OLEG_MOTION_HOME:-$HOME/.cache/oleg-motion}"
+export PATH="$HOME_DIR/tools/bin:$PATH"
+
+case "${1:-}" in
+  py)
+    shift
+    PY="$HOME_DIR/venv/bin/python"
+    [ -x "$PY" ] || { echo "Python environment is missing — run: $ROOT/om setup --ml" >&2; exit 1; }
+    exec "$PY" "$@" ;;
+  setup)  shift; exec bash "$ROOT/scripts/setup.sh" "$@" ;;
+  update) shift; exec bash "$ROOT/scripts/update.sh" "$@" ;;
+  *)
+    command -v node >/dev/null 2>&1 || { echo "Node.js is missing — run: $ROOT/om setup" >&2; exit 1; }
+    exec node "$ROOT/engine/cli.mjs" "$@" ;;
+esac
