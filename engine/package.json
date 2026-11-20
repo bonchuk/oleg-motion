@@ -1,0 +1,12 @@
+{
+  "name": "oleg-motion-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic HTML scene renderer for oleg-motion (Playwright frame capture + ffmpeg)",
+  "bin": { "oleg-motion": "./cli.mjs" },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,158 @@
+{
+  "_doc": "Mood bundles: one hero motion + at most two ambient effects. 'roles' map layer roles to effect lists; 'overlays' are canvas-space effects; 'intro' is used only for intro-loop/oneshot. Amplitudes are authored for a 1080px short side; the 'intensity' knob scales them.",
+  "calm": {
+    "label": "Спокійний / calm — повільне наближення, ледь помітний пил",
+    "camera": { "push": 0.035, "panX": 6, "panY": 0, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 6, "cycles": 1 }],
+      "text": [{ "type": "breathe", "amp": 0.012, "cycles": 1 }]
+    },
+    "overlays": [{ "type": "particles", "kind": "dust", "count": 35, "direction": "float", "z": "front", "keepOut": ["price", "legal"] }]
+  },
+  "premium": {
+    "label": "Преміум — відблиск по товару й тексту, зірочки, м'яке боке",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "shine", "angle": 22, "opacity": 0.45, "cycles": 1, "phase": 0.15 }, { "type": "float", "ampY": 5, "cycles": 1 }],
+      "text": [{ "type": "shine", "angle": 22, "opacity": 0.5, "cycles": 1, "phase": 0.45 }, { "type": "tilt3d", "degX": 2, "degY": 3, "cycles": 1 }],
+      "price": [{ "type": "glint", "points": "auto", "count": 2, "cycles": 1, "phase": 0.6 }],
+      "logo": [{ "type": "shine", "angle": 22, "opacity": 0.4, "cycles": 1, "phase": 0.7 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "bokeh", "count": 14, "z": "back" },
+      { "type": "vignette", "strength": 0.25 }
+    ]
+  },
+  "festive": {
+    "label": "Святковий / зима — сніг на кількох глибинах, боке, «дихання» тексту, зірочки",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "sway", "deg": 1.2, "cycles": 1, "anchor": [0.5, 1] }],
+      "text": [{ "type": "breathe", "amp": 0.015, "cycles": 1 }, { "type": "glint", "points": "auto", "count": 2, "cycles": 1, "phase": 0.55 }],
+      "price": [{ "type": "glint", "points": "auto", "count": 1, "cycles": 1, "phase": 0.3 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "bokeh", "count": 12, "z": "back" },
+      { "type": "particles", "kind": "snow", "count": 80, "z": "front", "keepOut": ["price", "legal"] }
+    ]
+  },
+  "autumn": {
+    "label": "Осінь — листя з глибиною, золотий пил, відблиск на заголовку (як банер «Міжсезонний розпродаж»)",
+    "camera": { "push": 0.04, "panX": 8, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "sway", "deg": 1.5, "cycles": 1, "anchor": [0.5, 1] }],
+      "text": [{ "type": "tilt3d", "degX": 2.5, "degY": 4, "cycles": 1 }, { "type": "breathe", "amp": 0.015, "cycles": 1 }, { "type": "glint", "points": "auto", "count": 1, "cycles": 1, "phase": 0.65 }],
+      "price": [{ "type": "glint", "points": "auto", "count": 1, "cycles": 1, "phase": 0.7 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "dust", "count": 40, "z": "front", "keepOut": ["price", "legal"] },
+      { "type": "particles", "kind": "leaves", "count": 6, "z": "front", "size": [40, 90], "keepOut": ["price", "legal", "text"] }
+    ]
+  },
+  "spring": {
+    "label": "Весна — пелюстки, теплі світлові плями",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 6, "cycles": 1 }],
+      "text": [{ "type": "breathe", "amp": 0.012, "cycles": 1 }]
+    },
+    "overlays": [
+      { "type": "lightLeak", "colors": ["#ffd1e0", "#fff0b3"], "opacity": 0.22 },
+      { "type": "particles", "kind": "petals", "count": 20, "z": "front", "keepOut": ["price", "legal", "text"] }
+    ]
+  },
+  "summer": {
+    "label": "Літо — сонячні промені, світлові плями, пил у світлі",
+    "camera": { "push": 0.035, "panX": 8, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 6, "cycles": 1 }],
+      "text": [{ "type": "breathe", "amp": 0.012, "cycles": 1 }]
+    },
+    "overlays": [
+      { "type": "rays", "origin": [0.85, -0.1], "opacity": 0.14 },
+      { "type": "lightLeak", "colors": ["#ffb347", "#ffd36b"], "opacity": 0.2 },
+      { "type": "particles", "kind": "dust", "count": 30, "direction": "float", "z": "front", "keepOut": ["price", "legal"] }
+    ]
+  },
+  "hot-sale": {
+    "label": "Гарячий розпродаж — поява ціни, відблиск на знижці, іскри; ціна нерухома після появи",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 5, "cycles": 1 }],
+      "text": [{ "type": "shine", "angle": 20, "opacity": 0.5, "cycles": 1, "phase": 0.2 }],
+      "price": [{ "type": "shine", "angle": 20, "opacity": 0.55, "cycles": 1, "phase": 0.35 }, { "type": "glint", "points": "auto", "count": 2, "cycles": 1, "phase": 0.55 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "sparks", "count": 40, "z": "front", "keepOut": ["price", "legal", "text"] },
+      { "type": "flare", "path": [[-0.1, 0.3], [1.1, 0.15]], "cycles": 1, "phase": 0.75, "opacity": 0.6 }
+    ]
+  },
+  "energetic": {
+    "label": "Енергійний — сильніший рух камери, іскри, світловий проліт",
+    "camera": { "push": 0.06, "panX": 12, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 10, "cycles": 2 }],
+      "text": [{ "type": "tilt3d", "degX": 3, "degY": 5, "cycles": 1 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "sparks", "count": 60, "z": "front", "keepOut": ["price", "legal"] },
+      { "type": "flare", "cycles": 1, "phase": 0.5, "opacity": 0.7 }
+    ]
+  },
+  "launch": {
+    "label": "Запуск / свято — конфеті, зірочки на тексті",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 6, "cycles": 1 }],
+      "text": [{ "type": "breathe", "amp": 0.015, "cycles": 1 }, { "type": "glint", "points": "auto", "count": 2, "cycles": 1, "phase": 0.4 }]
+    },
+    "overlays": [{ "type": "particles", "kind": "confetti", "count": 50, "z": "front", "keepOut": ["price", "legal", "text"] }]
+  },
+  "love": {
+    "label": "Романтичний — серця, рожеве боке",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 6, "cycles": 1 }],
+      "text": [{ "type": "breathe", "amp": 0.015, "cycles": 1 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "bokeh", "count": 14, "colors": ["#ffb3c8", "#ffd6e2", "#ffffff"], "z": "back" },
+      { "type": "particles", "kind": "hearts", "count": 14, "z": "front", "keepOut": ["price", "legal", "text"] }
+    ]
+  },
+  "night": {
+    "label": "Нічний / неон — пульсуюче сяйво тексту, боке, зерно",
+    "camera": { "push": 0.03, "cycles": 1 },
+    "roles": {
+      "subject": [{ "type": "float", "ampY": 5, "cycles": 1 }],
+      "text": [{ "type": "glow", "color": "#7fd7ff", "radius": 22, "strength": 0.7, "pulse": 0.3, "cycles": 2 }],
+      "price": [{ "type": "glow", "color": "#ffd36b", "radius": 18, "strength": 0.6, "pulse": 0.25, "cycles": 2 }]
+    },
+    "overlays": [
+      { "type": "particles", "kind": "bokeh", "count": 16, "colors": ["#7fd7ff", "#b38cff", "#ffffff"], "z": "back" },
+      { "type": "grain", "amount": 0.05 }
+    ]
+  },
+  "nature": {
+    "label": "Природа / атмосфера — легкий туман, хвиля на фоні, пил",
+    "camera": { "push": 0.03, "panX": 6, "cycles": 1 },
+    "roles": {
+      "background": [{ "type": "wave", "amp": 5, "scale": 3, "cycles": 1 }],
+      "subject": [{ "type": "float", "ampY": 4, "cycles": 1 }]
+    },
+    "overlays": [
+      { "type": "fog", "opacity": 0.16, "cycles": 1 },
+      { "type": "particles", "kind": "dust", "count": 25, "direction": "float", "z": "front", "keepOut": ["price", "legal"] }
+    ]
+  },
+  "_intro": {
+    "background": [{ "type": "fadeIn", "start": 0, "dur": 0.5 }],
+    "subject": [{ "type": "riseIn", "start": 0.15, "dur": 0.6, "dist": 40 }],
+    "foreground": [{ "type": "riseIn", "start": 0.2, "dur": 0.6, "dist": 30 }],
+    "text": [{ "type": "wipeIn", "start": 0.35, "dur": 0.6, "from": "left" }],
+    "logo": [{ "type": "fadeIn", "start": 0.3, "dur": 0.5 }],
+    "price": [{ "type": "popIn", "start": 0.7, "dur": 0.45, "from": 0.6 }],
+    "legal": [{ "type": "fadeIn", "start": 0.9, "dur": 0.4 }],
+    "cta": [{ "type": "riseIn", "start": 0.95, "dur": 0.45, "dist": 20 }]
+  }
+}

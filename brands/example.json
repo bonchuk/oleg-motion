@@ -1,0 +1,8 @@
+{
+  "name": "Example Sport Club",
+  "palette": { "accent": "#62f6ff", "accent2": "#bffcff", "light": "#ffffff", "dark": "#020304" },
+  "defaults": { "profile": "feed-portrait", "mood": "energetic", "structure": "intro-loop", "duration": 4, "intro": 2, "formats": "mp4", "intensity": 0.8 },
+  "protect": ["logo", "photo_*"],
+  "avoid": ["confetti", "hearts", "flare"],
+  "notes": "Turquoise is the brand colour. Logo never moves. Photos of real people: no distortion, only gentle float or none."
+}

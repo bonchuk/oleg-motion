@@ -1,0 +1,13 @@
+{
+  "_doc": "Universal output profiles. Sizes in px, budgets in bytes. Add project-specific profiles as separate files next to this one (any *.json with the same shape).",
+  "source": { "label": "Keep the source proportions (long side ≤ 1920 px; set canvas.maxSide to change)", "fps": 30, "maxSide": 1920 },
+  "story": { "label": "Stories / Reels / TikTok 9:16", "w": 1080, "h": 1920, "fps": 30, "mp4": { "crf": 20, "maxBytes": 8000000 }, "webm": { "maxBytes": 6000000 }, "gif": { "width": 540, "fps": 15, "maxBytes": 8000000 }, "safe": { "top": 0.14, "bottom": 0.2 } },
+  "feed-portrait": { "label": "Feed 4:5", "w": 1080, "h": 1350, "fps": 30, "mp4": { "crf": 20, "maxBytes": 6000000 }, "webm": { "maxBytes": 4500000 }, "gif": { "width": 540, "fps": 15, "maxBytes": 6000000 } },
+  "square": { "label": "Square 1:1", "w": 1080, "h": 1080, "fps": 30, "mp4": { "crf": 20, "maxBytes": 5000000 }, "webm": { "maxBytes": 4000000 }, "gif": { "width": 540, "fps": 15, "maxBytes": 5000000 } },
+  "landscape": { "label": "Landscape 16:9", "w": 1920, "h": 1080, "fps": 30, "mp4": { "crf": 20, "maxBytes": 8000000 }, "webm": { "maxBytes": 6000000 }, "gif": { "width": 800, "fps": 15, "maxBytes": 8000000 } },
+  "web-hero": { "label": "Website hero 1920×800", "w": 1920, "h": 800, "fps": 30, "mp4": { "crf": 22, "maxBytes": 1500000 }, "webm": { "maxBytes": 1200000 }, "gif": { "width": 800, "fps": 12, "maxBytes": 3000000 } },
+  "web-strip": { "label": "Wide strip banner 1920×600", "w": 1920, "h": 600, "fps": 30, "mp4": { "crf": 22, "maxBytes": 1200000 }, "webm": { "maxBytes": 1000000 }, "gif": { "width": 800, "fps": 12, "maxBytes": 2500000 } },
+  "display-mrec": { "label": "Display 300×250 (GIF ≤150 KB)", "w": 300, "h": 250, "fps": 24, "mp4": { "crf": 23, "maxBytes": 400000 }, "gif": { "width": 300, "fps": 12, "maxBytes": 150000 }, "maxDuration": 15 },
+  "display-leaderboard": { "label": "Display 728×90 (GIF ≤150 KB)", "w": 728, "h": 90, "fps": 24, "mp4": { "crf": 23, "maxBytes": 400000 }, "gif": { "width": 728, "fps": 12, "maxBytes": 150000 }, "maxDuration": 15 },
+  "display-skyscraper": { "label": "Display 160×600 (GIF ≤150 KB)", "w": 160, "h": 600, "fps": 24, "mp4": { "crf": 23, "maxBytes": 400000 }, "gif": { "width": 160, "fps": 12, "maxBytes": 150000 }, "maxDuration": 15 }
+}
