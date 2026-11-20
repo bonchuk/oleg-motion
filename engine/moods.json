@@ -151,7 +151,7 @@
     "foreground": [{ "type": "riseIn", "start": 0.2, "dur": 0.6, "dist": 30 }],
     "text": [{ "type": "wipeIn", "start": 0.35, "dur": 0.6, "from": "left" }],
     "logo": [{ "type": "fadeIn", "start": 0.3, "dur": 0.5 }],
-    "price": [{ "type": "popIn", "start": 0.7, "dur": 0.45, "from": 0.6 }],
+    "price": [{ "type": "popIn", "start": 0.7, "dur": 0.45, "from": 0.85 }],
     "legal": [{ "type": "fadeIn", "start": 0.9, "dur": 0.4 }],
     "cta": [{ "type": "riseIn", "start": 0.95, "dur": 0.45, "dist": 20 }]
   }

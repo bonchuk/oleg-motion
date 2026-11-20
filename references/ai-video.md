@@ -15,6 +15,13 @@ crowds — and only with the user's API key and consent (it costs money per seco
    a video layer in a future engine version) and composite the original protected layers on
    top, so text stays pixel-perfect.
 
+## Check every generated clip before using it
+- Read the frames (`ffmpeg -vf fps=2,tile=4x3`): distorted text, logos or brand names, warped
+  faces, extra fingers, melting objects. Small text melts on every model — keep text off the
+  generated plate (it comes back as the original layer anyway).
+- Generation costs money per second: confirm with the user before batches.
+- One or two generated plates per piece; many generated shots break the photo's reality.
+
 ## Model notes (Nov 2026 — changes monthly, verify before use)
 - Hosted aggregators with simple REST: fal.ai (`POST queue.fal.run/{model}`, poll status) and
   Replicate (`POST /v1/models/{owner}/{name}/predictions`).

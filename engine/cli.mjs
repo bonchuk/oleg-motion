@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { loadScene, imageSize, loopWindow } from './lib/scene.mjs';
 import { captureFrames } from './lib/render.mjs';
 import { encodeMp4, encodeWebm, encodeGif, poster, contactSheet } from './lib/encode.mjs';
-import { checkSeam, checkFlashes, checkLocked, probeVideo } from './lib/check.mjs';
+import { checkSeam, checkFlashes, checkLocked, checkSafeZones, probeVideo } from './lib/check.mjs';
 import { MOODS, loadProfiles, buildScene, applyBrand, guessRole, ROLE_DEPTH } from './lib/autoscene.mjs';
 
 const argv = process.argv.slice(2);
@@ -49,6 +49,7 @@ async function cmdRender() {
   report.checks.loop = checkSeam(cap.probes);
   report.checks.flashes = checkFlashes(cap.framesDir, fps);
   report.checks.locked = checkLocked(cap.framesDir, scene, cap.info.fit, fps);
+  report.checks.safeZones = checkSafeZones(scene, cap.info.fit);
   const budget = Object.entries(report.outputs).filter(([, v]) => v && v.overBudget).map(([k]) => k);
   report.checks.budget = { ok: !budget.length, over: budget };
   if (prof.maxDuration && scene.canvas.duration > prof.maxDuration) report.checks.duration = { ok: false, max: prof.maxDuration };
@@ -66,6 +67,7 @@ function printSummary(r) {
   if (c.loop) log(`  loop seam    ${c.loop.ok ? 'ok' : 'VISIBLE'} (seam ${c.loop.seamDiff} vs step ${c.loop.typicalStep})`);
   log(`  flashes      ${c.flashes.ok ? 'ok' : 'FAIL'} (max ${c.flashes.worstPerSecond}/s)`);
   if (c.locked) log(`  locked text  ${c.locked.ok ? 'ok' : 'MOVES'} ${c.locked.layers.map(l => l.id + ':' + l.maxDiff).join(' ')}`);
+  if (c.safeZones) { const bad = c.safeZones.layers.filter(l => l.status !== 'ok'); log(`  safe zones   ${!c.safeZones.ok ? 'CUT OFF' : c.safeZones.warn ? 'tight' : 'ok'}${bad.length ? ' ' + bad.map(l => `${l.id}:${l.status}(${Math.round(l.margin * 100)}%<${l.need * 100}%)`).join(' ') : ''}`); }
   log(`  budget       ${c.budget.ok ? 'ok' : 'over: ' + c.budget.over.join(',')}`);
   if (r.warnings.length) log(`  browser warnings: ${r.warnings.slice(0, 5).join(' | ')}`);
   log(r.ok ? 'ALL CHECKS PASSED' : 'SOME CHECKS FAILED — see report');

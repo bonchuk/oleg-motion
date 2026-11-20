@@ -20,9 +20,9 @@ Pass it to `scene --brand kit.json`. Where to keep it:
 
 | key | effect |
 |---|---|
-| `palette.accent`, `accent2`, `light` | colours for particles (dust, sparks, stars, bokeh, confetti, bubbles), glows and light leaks |
+| `palette.accent`, `accent2`, `light` | colours for particles (dust, sparks, stars, bokeh, confetti, bubbles), glows and light leaks. Keep one accent (60-30-10 rule): `accent2`/`light` should be tints of it or white, not a second hue |
 | `defaults` | used when the CLI flag is not given: `profile`, `mood`, `structure`, `duration` (loop length for intro-loop), `intro`, `intensity`, `speed`, `density`, `formats` (final render) |
-| `protect` | layer ids or roles (`*` wildcard) that keep only light and intro effects — no motion |
+| `protect` | layer ids or roles (`*` wildcard) that keep only light and intro effects — no motion. Put recognisable brand markers here (a mascot, a signature prop) so they are never distorted or covered |
 | `avoid` | overlay types or particle kinds never to use |
 | `notes` | rules for the agent in plain words; read them before planning motion |
 

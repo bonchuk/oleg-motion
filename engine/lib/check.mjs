@@ -70,3 +70,25 @@ export function probeVideo(file) {
   const v = j.streams.find(s => s.codec_type === 'video');
   return { codec: v.codec_name, profile: v.profile, level: v.level, w: v.width, h: v.height, pix_fmt: v.pix_fmt, color_range: v.color_range, sar: v.sample_aspect_ratio, fps: v.r_frame_rate, audio: j.streams.some(s => s.codec_type === 'audio'), duration: +j.format.duration, bytes: +j.format.size };
 }
+
+// Safe zones: must-read layers (text, price, legal, CTA) should keep ≥10 % from every edge
+// (title-safe), logos ≥5 % (action-safe). A layer partly outside the frame fails; inside the
+// frame but closer than the safe margin is a warning — designs often bleed on purpose, so the
+// warning says whether the source already had the same margin.
+export function checkSafeZones(scene, fit) {
+  const c = scene.canvas, src = scene.source;
+  const res = [];
+  for (const L of scene.layers) {
+    const need = ['text', 'price', 'legal', 'cta'].includes(L.role) ? 0.10 : L.role === 'logo' ? 0.05 : null;
+    if (need == null) continue;
+    const x1 = fit.ox + L.x * fit.sc, y1 = fit.oy + L.y * fit.sc;
+    const x2 = x1 + L.w * fit.sc, y2 = y1 + L.h * fit.sc;
+    const cut = x1 < -1 || y1 < -1 || x2 > c.w + 1 || y2 > c.h + 1;
+    const margin = Math.min(x1 / c.w, (c.w - x2) / c.w, y1 / c.h, (c.h - y2) / c.h);
+    const srcMargin = Math.min(L.x / src.w, (src.w - L.x - L.w) / src.w, L.y / src.h, (src.h - L.y - L.h) / src.h);
+    res.push({ id: L.id, role: L.role, margin: +margin.toFixed(3), need, cut, sourceMargin: +srcMargin.toFixed(3),
+      status: cut ? 'cut' : margin >= need ? 'ok' : (srcMargin < need && margin >= srcMargin - 0.01 ? 'as-designed' : 'tight') });
+  }
+  if (!res.length) return null;
+  return { layers: res, ok: !res.some((r) => r.status === 'cut'), warn: res.some((r) => r.status === 'tight') };
+}

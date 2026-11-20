@@ -28,6 +28,12 @@ mask modes
   color     a flat design colour ("color": "#80ffff", "tolerance": 60) — text, outlines, arrows.
             The alpha is solved exactly against the inpainted background, so anti-aliased
             edges come out clean even on a busy photo.
+"holeGrow": N also inpaints N px around the layer in the background — use it when the design
+has a drop shadow or glow around text, or the shadow stays behind as a ghost (re-create the
+shadow with a dark `glow` effect on the layer if it matters).
+"under": ["id"] puts an element beneath another layer it is partly hidden by in the design
+(a button behind a shoulder): it loses the covered pixels and is stacked below that layer.
+List it after that layer so the layer is restored without it.
 "restore": true on a layer cuts it from an image where every later (front) layer is removed
 and inpainted first: the runner behind a button stays whole while the button pops in later.
 Layers are listed back to front; later layers own the pixels they cover. The background is
@@ -144,6 +150,40 @@ def close_gaps(hole):
     return cv2.dilate(closed, np.ones((9, 9), np.uint8)) > 0
 
 
+def over_beneath(rgb, alpha, colour, under_alpha):
+    """Inside an element that lies UNDER the person (a button behind a shoulder) the person is
+    whatever does not look like the element: learn the element's palette where it is clearly
+    visible, then keep only pixels far from that palette. Pixels come from the original."""
+    import cv2
+    area = under_alpha > 0.5
+    if not area.any():
+        return alpha, colour
+    person = cv2.dilate((alpha > 0.5).astype(np.uint8), np.ones((41, 41), np.uint8)) > 0
+    sample = rgb[area & ~person].reshape(-1, 3).astype(np.float32)
+    if len(sample) < 100:
+        return alpha, colour
+    if len(sample) > 20000:
+        sample = sample[np.random.default_rng(0).choice(len(sample), 20000, replace=False)]
+    K = 5
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    _, _, centers = cv2.kmeans(sample, K, None, crit, 3, cv2.KMEANS_PP_CENTERS)
+    px = rgb.astype(np.float32)
+    dmin = np.min(np.stack([np.linalg.norm(px - c, axis=2) for c in centers]), axis=0)
+    a = np.clip((dmin - 30.0) / 40.0, 0, 1)
+    a = cv2.morphologyEx((a > 0.5).astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8)) * a
+    # only pieces connected to the person outside the element
+    n, lab, st, _ = cv2.connectedComponentsWithStats((a > 0.5).astype(np.uint8), connectivity=8)
+    touch = cv2.dilate(((alpha > 0.5) & ~area).astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+    ok = np.zeros(n, bool)
+    for i in range(1, n):
+        if touch[lab == i].any():
+            ok[i] = True
+    a = np.where(cv2.dilate(ok[lab].astype(np.uint8), np.ones((3, 3), np.uint8)) > 0, a, 0)
+    alpha = np.where(area, a, alpha).astype(np.float32)
+    colour = np.where(area[..., None], rgb, colour)
+    return alpha, colour
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("regions")
@@ -222,7 +262,11 @@ def main():
         if not L.get("restore"):
             continue
         front = np.zeros((H, W), bool)
+        beneath = []  # later-listed elements that the design puts UNDER this layer
         for j in range(k + 1, len(layers)):
+            if L.get("id") in layers[j].get("under", []):
+                beneath.append(j)
+                continue
             front |= alphas[j] > 0.08
         if front.any():
             import cv2
@@ -230,19 +274,45 @@ def main():
             clean, how = A.inpaint(img, front)
             A.log(f"  restore {L['id']}: elements in front removed ({how})")
             if L.get("mask") == "seg":
-                # Segmenting the cleaned image can lose a body part cut off by the removed
-                # button. Keep the shape from the original, bridge it where the front elements
-                # were (morphological closing), and take the pixels from the cleaned image.
+                # Where front elements covered the person, decide pixel by pixel: the cleaned
+                # (inpainted) image vs a plate with the person removed too. Different → it is the
+                # person (a thumb under a letter, hips under a button); same → background (the
+                # gap between fingers). Outside the front elements keep the original cut-out.
+                # The cut-out model also trims the person where text starts, so the gaps
+                # between letters near the person are decided the same way (original pixels).
+                g = max(15, int(0.02 * min(H, W))) | 1
+                zone = cv2.dilate(front.astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * g + 1, 2 * g + 1))) > 0
                 keep = alphas[k] * (~front)
-                r = int(L.get("bridge", max(40, int(0.05 * min(H, W)))))
-                solid = (keep > 0.5).astype(np.uint8)
-                grown = cv2.distanceTransform(1 - solid, cv2.DIST_L2, 5) <= r
-                closed = cv2.distanceTransform(grown.astype(np.uint8), cv2.DIST_L2, 5) > r
-                alphas[k] = np.maximum(keep, (closed & front).astype(np.float32))
+                body = cv2.dilate(((alphas[k] > 0.3) | zone).astype(np.uint8), np.ones((15, 15), np.uint8)) > 0
+                plate, _ = A.inpaint(Image.fromarray(clean), body)
+                cand = np.where(front[..., None], clean, rgb).astype(np.float32)
+                d = np.linalg.norm(cand - plate.astype(np.float32), axis=2)
+                inside = np.clip((d - 25.0) / 35.0, 0, 1) * zone
+                inside = np.where(front, inside, np.maximum(inside, alphas[k]))
+                # keep only pieces that touch the person
+                n, lab, st, _ = cv2.connectedComponentsWithStats((inside > 0.5).astype(np.uint8), connectivity=8)
+                touch = cv2.dilate((keep > 0.5).astype(np.uint8), np.ones((7, 7), np.uint8)) > 0
+                ok = np.zeros(n, bool)
+                for i in range(1, n):
+                    if st[i, 4] > 30 and touch[lab == i].any():
+                        ok[i] = True
+                near = cv2.dilate(ok[lab].astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+                alphas[k] = np.maximum(keep * (~zone), np.where(near, inside, 0)).astype(np.float32)
+                alphas[k] = np.maximum(alphas[k], keep * zone * (alphas[k] > 0.5))
                 colours[k] = clean
+                for j in beneath:
+                    alphas[k], colours[k] = over_beneath(rgb, alphas[k], colours[k], alphas[j])
             else:
                 alphas[k], colours[k] = compute(L, clean)
             restored[k] = True
+
+    # "under": [ids] — this element sits beneath those layers in the design (a button behind a
+    # shoulder): drop their pixels from it and stack it below them
+    ids = [L.get("id") for L in layers]
+    for i, L in enumerate(layers):
+        for oid in L.get("under", []):
+            if oid in ids:
+                alphas[i] = alphas[i] * (1 - alphas[ids.index(oid)])
 
     # later layers own their pixels: remove them from layers underneath (restored ones stay whole)
     owned = np.zeros((H, W), np.float32)
@@ -253,10 +323,30 @@ def main():
 
     meta = {"source": {"w": W, "h": H}, "input": str(src), "layers": []}
     hole = owned > 0.08
+    import cv2
+    for L, al in zip(layers, alphas):  # drop shadows / glows around a layer: grow its hole
+        g = int(L.get("holeGrow", 0))
+        if g > 0:
+            hole |= cv2.dilate((al > 0.08).astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * g + 1, 2 * g + 1))) > 0
     if not a.no_inpaint and hole.any():
-        import cv2
         hole = close_gaps(hole)
-        bg, how = A.inpaint(img, hole)
+        # Big layers (a person, a photo card) and small ones (text, buttons) touching each
+        # other merge into one huge hole that only gets a smooth fill. So: fill everything
+        # (smooth) first — the person disappears from the context — then let LaMa redo the
+        # small holes with real texture around them. The other order makes LaMa extend the
+        # person (skin, clothes) into the text holes.
+        big = np.zeros((H, W), bool)
+        for al, rst in zip(alphas, restored):
+            m = al > 0.08
+            if m.mean() > 0.03 or rst:
+                big |= cv2.dilate(m.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0
+        small = hole & ~big
+        if small.any() and big.any():
+            first, how = A.inpaint(img, hole)
+            bg, how2 = A.inpaint(Image.fromarray(first), small)
+            how = f"{how}+{how2}"
+        else:
+            bg, how = A.inpaint(img, hole)
         A.log(f"background: inpaint={how}")
     else:
         bg = rgb
@@ -269,6 +359,12 @@ def main():
     meta["layers"].append({"id": "background", "src": "background.png", "role": "background",
                            "x": 0, "y": 0, "w": W, "h": H, "depth": 0.05, "z": 0})
     preview = bg.astype(np.float32) * 0.45
+    zorder = list(range(len(layers)))
+    for i, L in enumerate(layers):
+        targets = [ids.index(o) for o in L.get("under", []) if o in ids]
+        if targets:
+            zorder[i] = min(targets) - 0.5
+    zrank = {i: r + 1 for r, i in enumerate(sorted(range(len(layers)), key=lambda i: zorder[i]))}
     for i, (L, al, col) in enumerate(zip(layers, alphas, colours)):
         pil, b = A.crop_rgba(col, al)
         if pil is None:
@@ -277,7 +373,7 @@ def main():
         name = f"{L['id']}.png"
         pil.save(out / name)
         entry = {"id": L["id"], "src": name, "role": L.get("role", "decor"),
-                 "x": b[0], "y": b[1], "w": b[2], "h": b[3], "z": i + 1}
+                 "x": b[0], "y": b[1], "w": b[2], "h": b[3], "z": zrank[i]}
         if "depth" in L:
             entry["depth"] = L["depth"]
         if "note" in L:

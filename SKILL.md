@@ -36,6 +36,10 @@ load it and pass `--brand` to `scene`: its defaults answer most questions (skip 
 its `protect` / `avoid` / `notes` are hard rules. Format: references/brand-kit.md. No kit yet →
 offer to save one at delivery (step 6).
 
+**Never ask about craft** — timings, easing, amplitudes, staggers, particle counts are
+professional defaults (references/motion-guidelines.md). Change them only when the person
+asks. Every question offers a default they can just accept.
+
 **Skip the questions** when the user says "просто зроби" / "just do it" / "on your own",
 or answers are already in the request: pick defaults and state them in one line.
 
@@ -63,7 +67,8 @@ with your recommended option first, built from what you saw in the image:
 
 Defaults if unanswered: profile from aspect ratio, 6 s (intro 2 s + loop 4 s for
 intro-loop), MP4, mood chosen from the palette and subject. A reference video ("like this")
-beats any answer — study 6–8 of its frames and copy its rhythm, not its content.
+beats any answer — break it down with references/reference-analysis.md and copy its
+rhythm, not its content.
 
 ## 2. Motion plan — agree in words before rendering
 
@@ -112,9 +117,10 @@ node $OM/engine/cli.mjs scene --layers work/layers/layers.json --mood energetic 
      [--intensity 1] [--speed 1] [--density 1] --out work/scene.json
 ```
 This drafts `scene.json` from the mood bundle (and brand kit). Then edit it to match the
-agreed plan — that is where the craft is: per-layer intro timings staggered 0.1–0.2 s,
-the hero's light/glow, decor motion (arrows bounce, badges spin), particles in the
-palette. Read references/effects.md for every effect and its parameters, and
+agreed plan — that is where the craft is: per-layer intro timings staggered 50–100 ms
+(whole cascade ≤ 2 s, entrances 400–800 ms, ease-out; bounce only on one playful element),
+the hero's light/glow, decor motion (arrows bounce, badges spin), particles in one accent
+colour from the image or brand kit. Read references/effects.md for every effect and its parameters, and
 references/motion-guidelines.md for limits that keep it professional.
 
 ## 5. Render, look, iterate
@@ -126,7 +132,10 @@ node $OM/engine/cli.mjs render work/scene.json --out work/out --formats mp4,webm
 After every render **look at `*-sheet.jpg`** (8 frames) and, when something is in doubt,
 extract single frames (`ffmpeg -ss 2.5 -i out.mp4 -frames:v 1 f.png`) and view them. The
 report (`*-report.json`, summarised in stderr) checks: loop seam, flashes (≤3/s), locked
-layers not moving, file budget. Fix failures before delivering — a visible seam usually
+layers not moving, safe zones (text/price/CTA ≥ 10 % from edges, logos ≥ 5 %; `cut` = a
+format change cropped it, `as-designed` = the source was already that tight), file budget.
+
+Fix failures before delivering — a visible seam usually
 means a non-integer `cycles`; a budget failure means fewer particles/grain, or lower GIF
 size/fps.
 

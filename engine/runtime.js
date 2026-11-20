@@ -299,7 +299,7 @@
     },
 
     // ----- intro / outro (time-based, seconds) -----
-    popIn: (st, o) => (tr, p, t) => { const k = clamp((t - (o.start ?? 0)) / (o.dur ?? 0.5), 0, 1); tr.s *= k <= 0 ? (o.from ?? 0.6) : lerp(o.from ?? 0.6, 1, easeOutBack(k, o.overshoot ?? 1.9)); if (o.fade !== false) tr.op *= clamp(k * 3, 0, 1); },
+    popIn: (st, o) => (tr, p, t) => { const k = clamp((t - (o.start ?? 0)) / (o.dur ?? 0.5), 0, 1); tr.s *= k <= 0 ? (o.from ?? 0.9) : lerp(o.from ?? 0.9, 1, easeOutBack(k, o.overshoot ?? 1.7)); if (o.fade !== false) tr.op *= clamp(k * 3, 0, 1); },
     fadeIn: (st, o) => (tr, p, t) => { tr.op *= easeOutCubic(clamp((t - (o.start ?? 0)) / (o.dur ?? 0.6), 0, 1)); },
     fadeOut: (st, o) => (tr, p, t) => { const end = S.scene.canvas.duration; const st0 = o.start ?? end - (o.dur ?? 0.5); tr.op *= 1 - easeInOut(clamp((t - st0) / (o.dur ?? 0.5), 0, 1)); },
     blurIn: (st, o) => (tr, p, t) => { const k = easeOutCubic(clamp((t - (o.start ?? 0)) / (o.dur ?? 0.6), 0, 1)); if (k < 1) tr.filter.push(`blur(${(o.px ?? 20) * (1 - k)}px)`); if (o.fade !== false) tr.op *= k; },

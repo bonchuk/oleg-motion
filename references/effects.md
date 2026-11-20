@@ -57,7 +57,7 @@ so a price can pop in and then stay perfectly still.
 | `fadeIn` | `start 0, dur 0.6` |
 | `riseIn` | `start, dur 0.6, dist 40` (px up, with fade) |
 | `slideIn` | `start, dur 0.6, from left|right|up|down, dist 0.25` (share of width) |
-| `popIn` | `start, dur 0.5, from 0.6, overshoot 1.9, fade true` (back-ease scale; `from` > 1 = settles from a close-up; `fade: false` keeps it opaque, e.g. a cut-out whose hole in the background must never show) |
+| `popIn` | `start, dur 0.5, from 0.9, overshoot 1.7, fade true` (back-ease scale; keep `from` ≥ 0.85 except for one playful accent; `from` > 1 = settles from a close-up; `fade: false` keeps it opaque, e.g. a cut-out whose hole in the background must never show) |
 | `blurIn` | `start, dur 0.6, px 20, fade true` (`fade: false` = focus pull without transparency) |
 | `wipeIn` | `start, dur 0.7, from left|right|up|down` (clip reveal) |
 | `fadeOut` | `start (default end−dur), dur 0.5` — one-shots only |

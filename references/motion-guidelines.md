@@ -28,7 +28,26 @@
 | glint | 0.4–0.6 s, 1–3 at a time |
 | particles | 20–60 on 2–3 depth layers; snow/leaves fall 20–60 px/s |
 | loop length | 4–8 s on-site; ≤ 15 s total for display ads (≤ 3 loops) |
-| intro | entrances 400–600 ms, ease-out; price pop 350–450 ms with slight overshoot |
+| intro | entrances 400–800 ms each (< 1 s), ease-out; small elements faster, big ones slower |
+| stagger | 50–100 ms between elements; > 150 ms each or > 2 s for the whole cascade feels sluggish |
+
+## Easing and entrances
+- Entrances (and exits) ease **out**; never `ease-in` or linear on an entrance — it reads robotic.
+  Continuous motion (loops, drifting particles) may be linear/periodic.
+- Never everything at once: a cascade with a clear order (background → hero → message → CTA).
+- Overshoot/bounce only on 1–2 playful elements (a price badge, a sticker, the CTA), and weak.
+  Bounce on everything looks amateur.
+- No pop from nothing: scale-in starts at ~0.9–0.95× with a fade, not from 0 or 0.5.
+- Keep the loop alive: something meaningful (the hero's light or motion) recurs at least
+  every ~4 s, so the frame never looks frozen.
+
+## Composition and colour
+- Safe zones: must-read text, price, CTA ≥ 10 % from every edge (title-safe), logos and key
+  graphics ≥ 5 % (action-safe). The render report checks it; "as-designed" means the source
+  already had that margin, "cut" means a format change cropped it — fix before delivery.
+- One accent colour for added effects (particles, glows, flares), taken from the image or the
+  brand kit; 60-30-10 palette, no rainbow. Multicolour confetti only when the mood asks for it.
+- One obvious focus per frame; nothing overlapping edges or other elements by accident.
 
 ## Accessibility and platform rules
 - **Flashes**: no more than 3 luminance flashes per second (WCAG 2.3.1). The renderer checks it.
